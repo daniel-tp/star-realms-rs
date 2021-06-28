@@ -2,8 +2,9 @@ pub use self::error::{Error, Result};
 use reqwest::Client;
 use serde::Deserialize;
 
-mod error;
+mod error; //TODO: Rename
 
+/// A single logged in instance of a logged in Star Realms user
 #[derive(Debug, Clone)]
 pub struct StarRealms {
     token: Token,
@@ -11,7 +12,7 @@ pub struct StarRealms {
     client: Client,
 }
 
-/// A single logged in instance of a logged in Star Realms user
+
 impl StarRealms {
     /// Create a new instance of StarRealms using a user's Username and Password to login.
     /// Password is not retained internally and is sent via HTTPS connection to official Star Realms servers

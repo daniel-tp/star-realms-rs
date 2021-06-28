@@ -1,6 +1,6 @@
 [package]
 name = "star-realms-rs"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Daniel P <daniel@pont.in>"]
 edition = "2018"
 description = "Library to read Star Realms PC/Mobile game API"
@@ -13,13 +13,14 @@ categories = ["api-bindings"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = { version = "0.11.3", features = ["json"] }
-thiserror = "1.0"
+reqwest = { version = "0.11", features = ["json"] }
+thiserror = "1"
 log = "0"
-tokio = { version = "1.7.0", features = ["full"] }
+
 serde_json = "1"
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
 env_logger = "0"
-dotenv = "0.15.0"
+dotenv = "0.15"
+tokio = { version = "1.7", features = ["macros"] }
