@@ -1,31 +1,58 @@
-
 pub use self::error::{Error, Result};
 use reqwest::Client;
 use serde::Deserialize;
 
 mod error;
 
+#[derive(Debug, Clone)]
 pub struct StarRealms {
     token: Token,
     core_version: usize,
     client: Client,
 }
 
+/// A single logged in instance of a logged in Star Realms user
 impl StarRealms {
+    /// Create a new instance of StarRealms using a user's Username and Password to login.
+    /// Password is not retained internally and is sent via HTTPS connection to official Star Realms servers
     pub async fn new(username: &str, password: &str) -> Result<StarRealms> {
         let mut sr = StarRealms {
             token: Token::default(),
             core_version: 45,
             client: reqwest::Client::new(),
         };
-        sr.get_new_token(username, password).await?;
-        sr.get_core_version().await?;
+        sr.new_token(username, password).await?;
+        sr.core_version().await?;
+        Ok(sr)
+    }
+
+    /// Create a new instance of StarRealms using a user's token. The required token is Token2 from the token response from the server.
+    /// As we don't get a token, we also don't have other data available that is usually provided when retrieving a token, such as purchases.
+    pub async fn new_with_token2_str(token: &str) -> Result<StarRealms> {
+        let mut sr = StarRealms {
+            token: Token::default(),
+            core_version: 45,
+            client: reqwest::Client::new(),
+        };
+        sr.token.token2 = token.to_string();
+        sr.core_version().await?;
+        Ok(sr)
+    }
+
+    /// Create a new instance of StarRealms using a previously made Token.
+    pub async fn new_with_token(token: Token) -> Result<StarRealms> {
+        let mut sr = StarRealms {
+            token: token,
+            core_version: 45,
+            client: reqwest::Client::new(),
+        };
+        sr.core_version().await?;
         Ok(sr)
     }
 
     /// Gets a login token using the username and password.
     /// This token doesn't seem to expire
-    async fn get_new_token(&mut self, username: &str, password: &str) -> Result<()> {
+    async fn new_token(&mut self, username: &str, password: &str) -> Result<()> {
         let params = [("username", username), ("password", password)];
         let res = self
             .client
@@ -42,7 +69,7 @@ impl StarRealms {
 
     /// Get the latest core version via trial and error
     /// Incorrect core version causes empty or invalid responses for other calls
-    async fn get_core_version(&mut self) -> Result<()> {
+    async fn core_version(&mut self) -> Result<()> {
         for core_version in 44..100 {
             let res = self
                 .client
@@ -60,7 +87,7 @@ impl StarRealms {
     }
 
     /// Get the latest user activity, including current player data
-    pub async fn get_activity(&self) -> Result<Activity> {
+    pub async fn activity(&self) -> Result<Activity> {
         let res = self
             .client
             .get("https://srprodv2.whitewizardgames.com/NewGame/ListActivitySortable")
@@ -73,11 +100,16 @@ impl StarRealms {
         }
         Ok(res.json().await?)
     }
+
+    /// Get the Star Realms user's Token struct
+    pub fn token(&self) -> &Token {
+        &self.token
+    }
 }
 
 //TODO: More rust friendly names?
-#[derive(Default, Deserialize, Debug)]
-struct Token {
+#[derive(Default, Deserialize, Debug, Clone)]
+pub struct Token {
     name: String,
     id: usize,
     token1: String,
@@ -155,6 +187,13 @@ mod tests {
     }
 
     #[tokio::test]
+    #[should_panic]
+    async fn incorrect_login_test() {
+        init();
+        StarRealms::new("fakeuser123", "fakepass123").await.unwrap();
+    }
+
+    #[tokio::test]
     async fn list_activity_test() -> Result<()> {
         init();
         let sr = StarRealms::new(
@@ -162,7 +201,7 @@ mod tests {
             env::var("SR_PASSWORD").unwrap().as_str(),
         )
         .await?;
-        sr.get_activity().await?;
+        sr.activity().await?;
         Ok(())
     }
 }

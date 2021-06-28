@@ -1,9 +1,15 @@
 [package]
-name = "star-realms"
-version = "0.1.0"
+name = "star-realms-rs"
+version = "0.1.1"
 authors = ["Daniel P <daniel@pont.in>"]
 edition = "2018"
-
+description = "Library to read Star Realms PC/Mobile game API"
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/daniel-tp/star-realms-rs"
+repository = "https://github.com/daniel-tp/star-realms-rs"
+readme = "README.md"
+keywords = ["api"]
+categories = ["api-bindings"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
