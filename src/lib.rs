@@ -111,11 +111,12 @@ impl StarRealms {
 //TODO: More rust friendly names?
 #[derive(Default, Deserialize, Debug, Clone)]
 pub struct Token {
-    name: String,
+    #[serde(rename = "name")]
+    pub username: String,
     id: usize,
     token1: String,
-    token2: String,
-    purchases: Vec<String>,
+    pub token2: String,
+    pub purchases: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -184,6 +185,18 @@ mod tests {
             env::var("SR_PASSWORD").unwrap().as_str(),
         )
         .await?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn username_test() -> Result<()> {
+        init();
+        let sr = StarRealms::new(
+            env::var("SR_USERNAME").unwrap().as_str(),
+            env::var("SR_PASSWORD").unwrap().as_str(),
+        )
+        .await?;
+        assert_eq!(env::var("SR_USERNAME").unwrap().to_ascii_lowercase(), sr.token.username.to_ascii_lowercase());
         Ok(())
     }
 
