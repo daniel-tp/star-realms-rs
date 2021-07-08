@@ -7,7 +7,7 @@ mod error; //TODO: Rename
 /// A single logged in instance of a logged in Star Realms user
 #[derive(Debug, Clone)]
 pub struct StarRealms {
-    token: Token,
+    pub token: Token,
     core_version: usize,
     client: Client,
 }
@@ -23,7 +23,7 @@ impl StarRealms {
             client: reqwest::Client::new(),
         };
         sr.new_token(username, password).await?;
-        sr.core_version().await?;
+        sr.find_core_version().await?;
         Ok(sr)
     }
 
@@ -36,7 +36,7 @@ impl StarRealms {
             client: reqwest::Client::new(),
         };
         sr.token.token2 = token.to_string();
-        sr.core_version().await?;
+        sr.find_core_version().await?;
         Ok(sr)
     }
 
@@ -47,7 +47,7 @@ impl StarRealms {
             core_version: 45,
             client: reqwest::Client::new(),
         };
-        sr.core_version().await?;
+        sr.find_core_version().await?;
         Ok(sr)
     }
 
@@ -70,7 +70,7 @@ impl StarRealms {
 
     /// Get the latest core version via trial and error
     /// Incorrect core version causes empty or invalid responses for other calls
-    async fn core_version(&mut self) -> Result<()> {
+    async fn find_core_version(&mut self) -> Result<()> {
         for core_version in 44..100 {
             let res = self
                 .client
@@ -102,10 +102,6 @@ impl StarRealms {
         Ok(res.json().await?)
     }
 
-    /// Get the Star Realms user's Token struct
-    pub fn token(&self) -> &Token {
-        &self.token
-    }
 }
 
 //TODO: More rust friendly names?
@@ -113,8 +109,8 @@ impl StarRealms {
 pub struct Token {
     #[serde(rename = "name")]
     pub username: String,
-    id: usize,
-    token1: String,
+    pub id: usize,
+    pub token1: String,
     pub token2: String,
     pub purchases: Vec<String>,
 }
@@ -153,6 +149,13 @@ pub struct Game {
     pub lastupdatedtime: String, //TODO: Change to chrono time?
     pub isleaguegame: bool,
     pub istournamentgame: bool,
+}
+
+impl Game {
+    //TODO: Replace with a better method
+    pub fn is_finished(&self) -> bool {
+        self.endreason == 0 && !self.won && !self.actionneeded
+    }
 }
 
 #[derive(Debug, Deserialize)]
