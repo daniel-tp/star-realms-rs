@@ -169,14 +169,14 @@ pub struct ClientData {
 }
 
 impl ClientData {
-    pub fn get_auth(&self, name: String) -> Result<isize> {
+    pub fn get_auth(&self, name: &str) -> Result<isize> {
         if name == self.p1_name{
             return Ok(self.p1_auth);
         }
         if name == self.p2_name{
             return Ok(self.p2_auth);
         }
-        Err(Error::InvalidPlayerName(name))
+        Err(Error::InvalidPlayerName(name.to_string()))
     }
 }
 
