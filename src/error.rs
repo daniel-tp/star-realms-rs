@@ -8,6 +8,8 @@ pub enum Error {
     ReqwestError(#[from] reqwest::Error),
     #[error("Invalid API Response {0}")]
     InvalidAPIResponse(String),
+    #[error("Unknown Player Name: {0}")]
+    InvalidPlayerName(String),
     #[error("Unknown Core Version")]
     UnknownCoreVersion(),
     #[error("Unknown Star Realms Error")]

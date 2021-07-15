@@ -168,6 +168,18 @@ pub struct ClientData {
     p2_name: String,
 }
 
+impl ClientData {
+    fn get_auth(&self, name: String) -> Result<isize> {
+        if name == self.p1_name{
+            return Ok(self.p1_auth);
+        }
+        if name == self.p2_name{
+            return Ok(self.p2_auth);
+        }
+        Err(Error::InvalidPlayerName(name))
+    }
+}
+
 fn deserialize_clientdata<'de, D>(deserializer: D) -> std::result::Result<ClientData, D::Error>
 where
     D: de::Deserializer<'de>,
