@@ -1,4 +1,5 @@
 pub use self::error::{Error, Result};
+use log::info;
 use reqwest::Client;
 use serde::Deserialize;
 
@@ -71,7 +72,8 @@ impl StarRealms {
     /// Get the latest core version via trial and error
     /// Incorrect core version causes empty or invalid responses for other calls
     async fn find_core_version(&mut self) -> Result<()> {
-        for core_version in 44..100 {
+        //TODO: Improve, as maybe multiple core versions are needed
+        for core_version in 45..100 {
             let res = self
                 .client
                 .get("https://srprodv2.whitewizardgames.com/NewGame/ListActivitySortable")
@@ -81,6 +83,7 @@ impl StarRealms {
                 .await?;
             if res.status() == 200 {
                 self.core_version = core_version;
+                info!("Found core version: {}", self.core_version);
                 return Ok(());
             }
         }
@@ -135,7 +138,8 @@ pub struct Activity {
 //TODO: Merge ActiveGame and FinishedGame under "Game"
 #[derive(Debug, Deserialize)]
 pub struct Game {
-    pub gameid: i64,
+    #[serde(rename = "gameid")]
+    pub id: i64,
     pub timing: String,
     pub mmdata: String,     //TODO: Change this into a struct
     pub clientdata: String, //TODO: Change this into a struct
@@ -143,7 +147,7 @@ pub struct Game {
     #[serde(default)]
     pub actionneeded: bool,
     #[serde(default)]
-    pub endreason: i64, //TODO: Figure out what these are
+    pub endreason: i64, //TODO: Figure out what these are. 2 == concede
     #[serde(default)]
     pub won: bool,
     pub lastupdatedtime: String, //TODO: Change to chrono time?
@@ -160,7 +164,8 @@ impl Game {
 
 #[derive(Debug, Deserialize)]
 pub struct Challenge {
-    pub challengeid: i64,
+    #[serde(rename = "challengeid")]
+    pub id: i64,
     pub challengername: String,
     pub challengercommander: String,
     pub opponentname: String,
@@ -221,4 +226,17 @@ mod tests {
         sr.activity().await?;
         Ok(())
     }
+
+    // #[tokio::test]
+    // async fn list_active_games_test() -> Result<()> {
+    //     init();
+    //     let sr = StarRealms::new(
+    //         env::var("SR_USERNAME").unwrap().as_str(),
+    //         env::var("SR_PASSWORD").unwrap().as_str(),
+    //     )
+    //     .await?;
+    //     let activity = sr.activity().await?;
+    //     assert!(activity.activegames.len()>=1);
+    //     Ok(())
+    // }
 }
