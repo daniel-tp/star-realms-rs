@@ -1,7 +1,7 @@
 pub use self::error::{Error, Result};
 use log::info;
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, de};
 
 mod error; //TODO: Rename
 
@@ -142,7 +142,8 @@ pub struct Game {
     pub id: i64,
     pub timing: String,
     pub mmdata: String,     //TODO: Change this into a struct
-    pub clientdata: String, //TODO: Change this into a struct
+    #[serde(deserialize_with = "deserialize_clientdata")]
+    pub clientdata: ClientData, //TODO: Change this into a struct
     pub opponentname: String,
     #[serde(default)]
     pub actionneeded: bool,
@@ -155,10 +156,49 @@ pub struct Game {
     pub istournamentgame: bool,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ClientData {
+    #[serde(rename = "p1auth")]
+    p1_auth: isize,
+    #[serde(rename = "p2auth")]
+    p2_auth: isize,
+    #[serde(rename = "p1name")]
+    p1_name: String,
+    #[serde(rename = "p2name")]
+    p2_name: String,
+}
+
+fn deserialize_clientdata<'de, D>(deserializer: D) -> std::result::Result<ClientData, D::Error>
+where
+    D: de::Deserializer<'de>,
+{
+    let s: String = de::Deserialize::deserialize(deserializer)?;
+    serde_json::from_str(&s).map_err(de::Error::custom)
+}
+
 impl Game {
     //TODO: Replace with a better method
+    /// Returns if the game is finished or not
     pub fn is_finished(&self) -> bool {
         self.endreason == 0 && !self.won && !self.actionneeded
+    }
+
+    /// Returns the name of the player whose turn it currently is
+    pub fn which_turn(&self) -> String {
+        let mut which_turn = self.opponentname.clone();
+        if self.actionneeded {
+            which_turn = if self.is_player_one() {
+                self.clientdata.p1_name.clone()
+            }else{
+                self.clientdata.p2_name.clone()
+            };
+        }
+        which_turn
+    }
+
+    /// Returns true if the logged in user is the player one of the Game
+    pub fn is_player_one(&self) -> bool {
+        return self.opponentname != self.clientdata.p1_name;
     }
 }
 

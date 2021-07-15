@@ -1,6 +1,6 @@
 [package]
 name = "star-realms-rs"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Daniel P <daniel@pont.in>"]
 edition = "2018"
 description = "Library to read Star Realms PC/Mobile game API"
