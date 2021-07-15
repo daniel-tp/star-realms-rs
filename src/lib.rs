@@ -148,7 +148,7 @@ pub struct Game {
     #[serde(default)]
     pub actionneeded: bool,
     #[serde(default)]
-    pub endreason: i64, //TODO: Figure out what these are. 2 == concede
+    pub endreason: i64, //TODO: Figure out what these are. 2 == concede, 0 == lost?/normal game end
     #[serde(default)]
     pub won: bool,
     pub lastupdatedtime: String, //TODO: Change to chrono time?
@@ -159,13 +159,13 @@ pub struct Game {
 #[derive(Debug, Deserialize, Clone)]
 pub struct ClientData {
     #[serde(rename = "p1auth")]
-    p1_auth: isize,
+    pub p1_auth: isize,
     #[serde(rename = "p2auth")]
-    p2_auth: isize,
+    pub p2_auth: isize,
     #[serde(rename = "p1name")]
-    p1_name: String,
+    pub p1_name: String,
     #[serde(rename = "p2name")]
-    p2_name: String,
+    pub p2_name: String,
 }
 
 impl ClientData {
