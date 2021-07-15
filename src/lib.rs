@@ -136,14 +136,14 @@ pub struct Activity {
 }
 
 //TODO: Merge ActiveGame and FinishedGame under "Game"
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Game {
     #[serde(rename = "gameid")]
     pub id: i64,
     pub timing: String,
     pub mmdata: String,     //TODO: Change this into a struct
     #[serde(deserialize_with = "deserialize_clientdata")]
-    pub clientdata: ClientData, //TODO: Change this into a struct
+    pub clientdata: ClientData,
     pub opponentname: String,
     #[serde(default)]
     pub actionneeded: bool,
@@ -156,7 +156,7 @@ pub struct Game {
     pub istournamentgame: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ClientData {
     #[serde(rename = "p1auth")]
     p1_auth: isize,
