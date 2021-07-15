@@ -169,7 +169,7 @@ pub struct ClientData {
 }
 
 impl ClientData {
-    fn get_auth(&self, name: String) -> Result<isize> {
+    pub fn get_auth(&self, name: String) -> Result<isize> {
         if name == self.p1_name{
             return Ok(self.p1_auth);
         }
